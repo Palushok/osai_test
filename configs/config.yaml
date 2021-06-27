@@ -1,0 +1,34 @@
+
+dataset:
+    list_of_images: '/app/data/images/train'
+    batch_size: 32
+    num_workers: 0
+    height: 512
+    width: 512
+    labels:
+      - badminton
+      - baseball
+      - basketball
+      - boxing
+      - chess
+      - football
+      - formula1
+      - gymnastics
+      - hockey
+      - shooting
+      - swimming
+      - table_tennis
+      - tennis
+      - volleyball
+    seed: 42
+
+model:
+    arch: 'mobilenet'
+    encoder: 'resnet18' # for resnet
+    pretrained: 'imagenet'
+
+main:
+    epoches: 40
+    logdir: "./logs/mobilenet_v3_small"
+    patience: 5
+    min_delta: 0.01

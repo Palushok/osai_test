@@ -1,0 +1,6 @@
+*__pycache__*
+notebooks
+*.ipynb*
+logs
+images
+images_part
