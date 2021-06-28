@@ -1,0 +1,5 @@
+logs
+notebooks
+*__pycache__*
+data/images
+data/images_part

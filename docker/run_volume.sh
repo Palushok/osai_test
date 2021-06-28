@@ -1,0 +1,1 @@
+sudo docker run -it --rm --gpus -v <ABSOLUTE_PATH>:/app/data/images all sports:latest bash
