@@ -2,7 +2,7 @@
 dataset:
     list_of_images: '/app/data/images/train'
     batch_size: 32
-    num_workers: 0
+    num_workers: 2
     height: 512
     width: 512
     labels:
@@ -29,6 +29,6 @@ model:
 
 main:
     epoches: 40
-    logdir: "./logs/mobilenet_v3_small"
+    logdir: "./logs/mobilenet_lr_001"
     patience: 5
     min_delta: 0.01

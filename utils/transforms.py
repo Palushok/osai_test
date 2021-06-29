@@ -14,6 +14,7 @@ def train_transform(h, w):
             alb.Downscale(scale_min=0.4, scale_max=0.9, p=0.3),
             alb.ImageCompression(quality_lower=10, quality_upper=95, p=0.7),
         ]),
+        alb.HorizontalFlip(p=0.5),
         alb.GaussNoise(p=0.3),
         alb.OneOf([
             alb.HueSaturationValue(

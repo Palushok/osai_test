@@ -17,86 +17,81 @@ from catalyst.callbacks.metrics.classification import MultilabelPrecisionRecallF
 
 with open(r'../configs/config.yaml') as file:
     conf = yaml.load(file, Loader=yaml.FullLoader)    
-    
-valid_tr = valid_transform(conf['dataset']['height'], conf['dataset']['width'])
-train_tr = train_transform(conf['dataset']['height'], conf['dataset']['width'])
 
-train_ds = SportsDataset(
-    list_of_images=glob(f"{conf['dataset']['list_of_images']}/*/*.jpg"),
-    labels=conf['dataset']['labels'],
-    transform=train_tr,
-    seed=conf['dataset']['seed'],
-)
 
-print('Train dataset loaded')
+if __name__ == '__main__':
+    torch.multiprocessing.set_start_method('spawn')
+        
+    valid_tr = valid_transform(conf['dataset']['height'], conf['dataset']['width'])
+    train_tr = train_transform(conf['dataset']['height'], conf['dataset']['width'])
 
-train_loader = torch.utils.data.DataLoader(
-    train_ds, batch_size=conf['dataset']['batch_size'],
-    shuffle=True, num_workers=conf['dataset']['num_workers']
-)
+    train_ds = SportsDataset(
+        list_of_images=glob(f"{conf['dataset']['list_of_images']}/*/*.jpg"),
+        labels=conf['dataset']['labels'],
+        transform=train_tr,
+        seed=conf['dataset']['seed'],
+    )
 
-val_ds = SportsDataset(
-    list_of_images=glob(f"{conf['dataset']['list_of_images']}/*/*.jpg"),
-    labels=conf['dataset']['labels'],
-    transform=train_tr,
-    is_train=False,
-    seed=conf['dataset']['seed'],
-)
+    print('Train dataset loaded')
 
-print('Valid dataset loaded')
+    train_loader = torch.utils.data.DataLoader(
+        train_ds, batch_size=conf['dataset']['batch_size'],
+        shuffle=True, num_workers=conf['dataset']['num_workers']
+    )
 
-val_loader = torch.utils.data.DataLoader(
-    val_ds, batch_size=conf['dataset']['batch_size'],
-    shuffle=True, num_workers=conf['dataset']['num_workers'])
+    val_ds = SportsDataset(
+        list_of_images=glob(f"{conf['dataset']['list_of_images']}/*/*.jpg"),
+        labels=conf['dataset']['labels'],
+        transform=train_tr,
+        is_train=False,
+        seed=conf['dataset']['seed'],
+    )
 
-loaders = collections.OrderedDict()
-loaders['train'] = train_loader
-loaders['valid'] = val_loader
+    print('Valid dataset loaded')
 
-device = get_device()
-model = get_model(
-    arch=conf['model']['arch'],
-    model_name=conf['model'].get('encoder'),
-    num_classes=len(conf['dataset']['labels']),
-    pretrained=conf['model'].get('pretrained')
-).to(device)
+    val_loader = torch.utils.data.DataLoader(
+        val_ds, batch_size=conf['dataset']['batch_size'],
+        shuffle=True, num_workers=conf['dataset']['num_workers'])
 
-print('molde created')
+    loaders = collections.OrderedDict()
+    loaders['train'] = train_loader
+    loaders['valid'] = val_loader
 
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters())
+    device = get_device()
+    model = get_model(
+        arch=conf['model']['arch'],
+        model_name=conf['model'].get('encoder'),
+        num_classes=len(conf['dataset']['labels']),
+        pretrained=conf['model'].get('pretrained')
+    ).to(device)
 
-scheduler = OneCycleLRWithWarmup(
-    optimizer,
-    num_steps=conf['main']['epoches'], 
-    lr_range=(0.005, 0.00005),
-    warmup_steps=2,
-    momentum_range=(0.85, 0.95)
-)
+    print('molde created')
 
-runner = SupervisedRunner(
-    input_key="features", output_key="scores",
-    target_key="targets", loss_key="loss",
-)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters())
 
-print('Start traning')
+    runner = SupervisedRunner(
+        input_key="features", output_key="scores",
+        target_key="targets", loss_key="loss",
+    )
 
-runner.train(
-    model=model,
-    criterion=criterion,
-    optimizer=optimizer,
-    loaders=loaders,
-    scheduler=scheduler,
-    logdir=conf['main']['logdir'],
-    num_epochs=conf['main']['epoches'],
-    callbacks=[
-        EarlyStoppingCallback(
-            patience=conf['main']['patience'],
-            loader_key='valid',
-            min_delta=conf['main']['min_delta'],
-            metric_key='loss',
-            minimize=True,
-        ),
-    ],
-    verbose=True,
+    print('Start traning')
+
+    runner.train(
+        model=model,
+        criterion=criterion,
+        optimizer=optimizer,
+        loaders=loaders,
+        logdir=conf['main']['logdir'],
+        num_epochs=conf['main']['epoches'],
+        callbacks=[
+            EarlyStoppingCallback(
+                patience=conf['main']['patience'],
+                loader_key='valid',
+                min_delta=conf['main']['min_delta'],
+                metric_key='loss',
+                minimize=True,
+            ),
+        ],
+        verbose=True,
 )
