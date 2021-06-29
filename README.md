@@ -43,6 +43,13 @@ python utils/download_data.py
 
 Было обучено 2 сети: resnet18 и mobilenet_v3_small, но resnet не взлетел вообще. Для выбора, какую именно сетку обучать, в конфиге необходимо поменять параметры модели, а именно поставить arch='resnet'
 
+Для обучения необходимо выполнить:
+```
+cd /app/train/
+python train.py
+```
+Логи по умолчанию сохранятся в <b>/app/train/logs/mobilenet_lr_001/checkpoints/</b>
+
 Процесс обучения тоже небыстрый, поэтому финальную модельку я сразу закинул в <b>weights/mobilenet_v3_small.py</b>
 
 График обучения:
